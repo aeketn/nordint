@@ -83,7 +83,7 @@ impl BigUint {
     }
 
     /// Calculates the traditional Fibonacci sequence up to the nth element.BigUint
-    /// 
+    ///
     /// # Example
     /// ```
     /// extern crate nordint;
