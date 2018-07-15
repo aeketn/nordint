@@ -132,3 +132,23 @@ impl FromStr for BigUint {
         Ok(number)
     }
 }
+
+impl ToString for BigUint {
+    /// Converts a BigUint to a string.
+    fn to_string(&self) -> String {
+        if self.buckets.is_empty() {
+            return String::new();
+        }
+        // Avoid generating leading zeros on the highest-order bucket.
+        let mut num_as_string = self.buckets[self.buckets.len() - 1].to_string();
+        // Add each bucket to the string with potential leading zeros
+        for bucket in self.buckets.iter().rev().skip(1) {
+            let number = &bucket.to_string();
+            for _ in number.len()..DIGITS_PER_BUCKET {
+                num_as_string.push('0');
+            }
+            num_as_string += number;
+        }
+        num_as_string
+    }
+}
