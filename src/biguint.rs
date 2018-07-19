@@ -5,6 +5,7 @@
 // contact: aeketn@gmail.com
 
 use std::ops::AddAssign;
+use std::str::from_utf8;
 use std::str::FromStr;
 use ParseBigIntError;
 
@@ -52,15 +53,19 @@ impl BigUint {
     }
 
     /// Creates a `BigUint` from a string.
-    /// # FromStr Difference
+    /// 
+    /// # How does this differ from the FromStr trait?
+    /// 
     /// This function will strip out all non-digit characters and never return a `ParseIntError`  
     /// This allows strings with more flexible formatting to be passed in:  
+    /// 
     /// # Examples
+    /// 
     /// Each of these strings produces the same `BigUint`.  
     ///
     /// `"123456789123456789_123456789123456789"` : Separated by internal bucket size using an underscore.  
     /// `"000123456789123456789123456789123456789"` : Leading zeros are ignored.  
-    /// `"abc123456789123456789LMNOP123456789123456789xyz" : Letters are ignored.
+    /// `"abc123456789123456789LMNOP123456789123456789xyz"` : Letters are ignored.  
     /// `"123,456,789,123,456,789,123,456,789,123,456,789"` : Represented using commas as separators.  
     pub fn new(num_as_str: &str) -> BigUint {
         // Safe to unwrap() because all invalid characters will be filtered out.
@@ -142,7 +147,7 @@ impl FromStr for BigUint {
 
     /// Creates a `BigUint` from a provided string.  
     /// This function will throw a `ParseIntError` if the provided string is not entirely numerical.  
-    /// *Note:* If you want more flexible formatting, use `BigUing::new()`
+    /// *Note:* If you want more flexible formatting, use `BigUing::new()`  
     fn from_str(num_as_str: &str) -> Result<Self, Self::Err> {
         if num_as_str.is_empty() {
             return Err(Self::Err::empty());
@@ -155,28 +160,19 @@ impl FromStr for BigUint {
         }
 
         let mut number = BigUint::with_capacity(num_as_str.len() / DIGITS_PER_BUCKET + 1);
-        let mut bucket = String::new();
+        let mut buckets = num_as_str
+            .as_bytes()
+            .iter()
+            .cloned()
+            .skip_while(|byte| *byte == '0' as u8)
+            .collect::<Vec<u8>>();
 
-        num_as_str.chars()
-            .skip_while(|digit| '0' == *digit)
-            .collect::<String>().chars().rev()
-            // Fill the BigUint 
-            .enumerate()
-            .for_each(|(i, digit)| {
-                bucket.push(digit);
-                if 0 == (i + 1) % DIGITS_PER_BUCKET {
-                    let reverse = bucket.chars().rev().collect::<String>();
-                    number.buckets.push(<u64>::from_str(&reverse).unwrap());
-                    bucket.clear();
-                }
-            });
-
-        // Push on the last bucket
-        if !bucket.is_empty() {
-            let reverse = bucket.chars().rev().collect::<String>();
-            number.buckets.push(<u64>::from_str(&reverse).unwrap());
-        }
-
+        buckets.reverse();
+        buckets.chunks_mut(DIGITS_PER_BUCKET).for_each(|bucket| {
+            bucket.reverse();
+            let reverse = from_utf8(bucket).unwrap();
+            number.buckets.push(<u64>::from_str(reverse).unwrap());
+        });
         Ok(number)
     }
 }
