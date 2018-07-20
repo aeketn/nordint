@@ -164,14 +164,14 @@ impl FromStr for BigUint {
             .as_bytes()
             .iter()
             .cloned()
-            .skip_while(|byte| *byte == '0' as u8)
+            .skip_while(|byte| *byte == b'0')
             .collect::<Vec<u8>>();
 
         buckets.reverse();
-        buckets.chunks_mut(DIGITS_PER_BUCKET).for_each(|bucket| {
-            bucket.reverse();
-            let reverse = from_utf8(bucket).unwrap();
-            number.buckets.push(<u64>::from_str(reverse).unwrap());
+        buckets.chunks_mut(DIGITS_PER_BUCKET).for_each(|chunk| {
+            chunk.reverse();
+            let bucket = from_utf8(chunk).unwrap();
+            number.buckets.push(<u64>::from_str(bucket).unwrap());
         });
         Ok(number)
     }
