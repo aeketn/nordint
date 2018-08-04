@@ -1,27 +1,28 @@
 // author:  Erik Nordin
 // created: 07/14/2018
-// updated: 07/14/2018
+// updated: 08/04/2018
 // version: 0.1.0
 // contact: aeketn@gmail.com
 
 use std::ops::AddAssign;
+use std::ops::MulAssign;
 use std::str::from_utf8;
 use std::str::FromStr;
 use ParseBigIntError;
 
-pub const LIMIT: u64 = 1_000_000_000_000_000_000; // under 19 digits
-pub const DIGITS_PER_BUCKET: usize = 18;
+pub const LIMIT: u64 = 1_000_000_000; // under 10 digits
+pub const DIGITS_PER_BUCKET: usize = 9;
 
 /// An unbounded, unsigned integer.
 ///
 /// # Internal Representation
 /// `BigUint` is represnted internally by a `Vector<u64>`.  
 /// Each index of the vector (referred to as a `bucket`) contains
-/// up to 18 digits of a number, with the highest-order digits stored at the tail.  
+/// up to 9 digits of a number, with the highest-order digits stored at the tail.  
 ///
-/// *Example:*  
+/// *Example if bucket-size were 3 digits:*  
 /// Number: `123_000_000_000_000_004_560`  
-/// Internal: `BigUint { [4560, 123] }`
+/// Internal: `BigUint { [560, 4, 0, 0, 0, 0, 123] }`
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct BigUint {
     buckets: Vec<u64>,
@@ -53,14 +54,14 @@ impl BigUint {
     }
 
     /// Creates a `BigUint` from a string.
-    /// 
+    ///
     /// # How does this differ from the FromStr trait?
-    /// 
+    ///
     /// This function will strip out all non-digit characters and never return a `ParseIntError`  
     /// This allows strings with more flexible formatting to be passed in:  
-    /// 
+    ///
     /// # Examples
-    /// 
+    ///
     /// Each of these strings produces the same `BigUint`.  
     ///
     /// `"123456789123456789_123456789123456789"` : Separated by internal bucket size using an underscore.  
@@ -87,6 +88,8 @@ impl BigUint {
         self.buckets.capacity()
     }
 
+    /// # Description
+    ///
     /// Calculates the traditional Fibonacci sequence up to the nth element.BigUint
     ///
     /// # Example
@@ -132,6 +135,14 @@ impl BigUint {
                 }
             }
         }
+    }
+
+    pub fn fac(n: usize) -> BigUint {
+        let mut result = BigUint::one();
+        (1..n + 1).rev().for_each(|x| {
+            result *= x as u64;
+        });
+        result
     }
 }
 
@@ -198,27 +209,51 @@ impl ToString for BigUint {
 
 impl<'a> AddAssign<&'a BigUint> for BigUint {
     fn add_assign(&mut self, rhs: &BigUint) {
-        while self.buckets.len() < rhs.buckets.len() {
-            self.buckets.push(0);
+        let rhs = &rhs.buckets;
+        let lhs = &mut self.buckets;
+        let lhs_len = lhs.len();
+        let rhs_len = rhs.len();
+        let mut carry = add_slices(&mut lhs[..], &rhs[..]);
+        if lhs_len < rhs_len {
+            lhs.extend_from_slice(&rhs[lhs_len..]);
+            if carry == 1 {
+                carry = add_slices(&mut lhs[lhs_len..], &[carry]);
+            }
+        } else if lhs_len > rhs_len && carry == 1 {
+            carry = add_slices(&mut lhs[rhs_len..], &[carry]);
         }
-
-        let mut carry = 0;
-        self.buckets
-            .iter_mut()
-            .zip(rhs.buckets.iter())
-            .for_each(|(lhs, rhs)| {
-                let difference = LIMIT - rhs - carry;
-                if *lhs >= difference {
-                    *lhs -= difference;
-                    carry = 1;
-                } else {
-                    *lhs += *rhs + carry;
-                    carry = 0;
-                }
-            });
-
         if carry == 1 {
-            self.buckets.push(1);
+            lhs.push(1);
+        }
+    }
+}
+
+#[inline]
+fn add_slices(lhs: &mut [u64], rhs: &[u64]) -> u64 {
+    let mut carry = 0;
+    lhs.iter_mut().zip(rhs.iter()).for_each(|(lx, rx)| {
+        *lx += rx + carry;
+        carry = if *lx >= LIMIT {
+            *lx %= LIMIT;
+            1
+        } else {
+            0
+        }
+    });
+    carry
+}
+
+impl MulAssign<u64> for BigUint {
+    fn mul_assign(&mut self, rhs: u64) {
+        let mut carry = 0;
+        for bucket in &mut self.buckets {
+            *bucket *= rhs;
+            *bucket += carry;
+            carry = *bucket / LIMIT;
+            *bucket %= LIMIT;
+        }
+        if 0 < carry {
+            self.buckets.push(carry);
         }
     }
 }
