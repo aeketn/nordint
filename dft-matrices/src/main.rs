@@ -1,3 +1,8 @@
+// author:  Erik Nordin
+// created: 08/02/2018
+// updated: 08/04/2018
+// contact: aeketn@gmail.com
+
 #![feature(range_contains)] // Allows syntax: (0..10).contains(x);
                             // Must compile using a Nightly build
 
