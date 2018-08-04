@@ -1,261 +1,280 @@
+// author:  Erik Nordin
+// created: 07/14/2018
+// updated: 08/04/2018
+// version: 0.1.0
+// contact: aeketn@gmail.com
+
 #![feature(test)]
 
 extern crate nordint;
 
 #[cfg(test)]
-mod biguint_tests {
+mod biguint_simple_constructors {
     use nordint::BigUint;
-    use std::str::FromStr;
 
     #[test]
-    fn biguint_empty() {
+    fn empty() {
         let number = BigUint::empty();
         assert_eq!("BigUint { buckets: [] }", format!("{:?}", number));
         assert_eq!(10, number.capacity());
     }
 
     #[test]
-    fn biguint_with_capacity() {
+    fn with_capacity() {
         let number = BigUint::with_capacity(50);
         assert_eq!("BigUint { buckets: [] }", format!("{:?}", number));
         assert_eq!(50, number.capacity());
     }
 
     #[test]
-    fn biguint_zero() {
+    fn zero() {
         let number = BigUint::zero();
         assert_eq!("BigUint { buckets: [0] }", format!("{:?}", number));
     }
 
     #[test]
-    fn biguint_one() {
+    fn one() {
         let number = BigUint::one();
         assert_eq!("BigUint { buckets: [1] }", format!("{:?}", number));
     }
 
     #[test]
-    fn biguint_default() {
+    fn default() {
         let number = BigUint::default();
         assert_eq!("BigUint { buckets: [] }", format!("{:?}", number));
     }
+}
+
+#[cfg(test)]
+mod biguint_from_str {
+    use nordint::BigUint;
+    use std::str::FromStr;
 
     #[test]
-    fn biguint_new() {
-        let number = BigUint::new("");
-        assert_eq!("BigUint { buckets: [] }", format!("{:?}", number));
+    fn empty_string() {
+        let number = BigUint::from_str("").unwrap_or_default();
+        assert_eq!(format!("{:?}", BigUint::default()), format!("{:?}", number));
+    }
 
-        let number = BigUint::new("123456789000");
+    #[test]
+    fn digits_only() {
+        let number = BigUint::from_str("123456789000").unwrap_or_default();
         assert_eq!(
-            "BigUint { buckets: [123456789000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::new("123_456_789_000");
-        assert_eq!(
-            "BigUint { buckets: [123456789000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::new("123,456,789,000");
-        assert_eq!(
-            "BigUint { buckets: [123456789000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::new("000123456789000");
-        assert_eq!(
-            "BigUint { buckets: [123456789000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::new("00000000000000000000000000123456789000");
-        assert_eq!(
-            "BigUint { buckets: [123456789000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::new("123456789123456789_123456789123456789");
-        assert_eq!(
-            "BigUint { buckets: [123456789123456789, 123456789123456789] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::new("123456789123456789_023456789023456789_000000000000000001");
-        assert_eq!(
-            "BigUint { buckets: [1, 23456789023456789, 123456789123456789] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::new("100000000000000000_000000000000000000_000000000000000001");
-        assert_eq!(
-            "BigUint { buckets: [1, 0, 100000000000000000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::new("1_000000000000000000_000000000000000000_000000000000000011");
-        assert_eq!(
-            "BigUint { buckets: [11, 0, 0, 1] }",
+            "BigUint { buckets: [456789000, 123] }",
             format!("{:?}", number)
         );
     }
 
     #[test]
-    fn biguint_from_str() {
-        let number = BigUint::from_str("").unwrap_or_default();
-        assert_eq!(format!("{:?}", BigUint::default()), format!("{:?}", number));
-
-        let number = BigUint::from_str("123,456,789,000").unwrap_or_default();
-        assert_eq!(format!("{:?}", BigUint::default()), format!("{:?}", number));
-
-        let number = BigUint::from_str("123456789000").unwrap_or_default();
-        assert_eq!(
-            "BigUint { buckets: [123456789000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::from_str("000123456789000").unwrap_or_default();
-        assert_eq!(
-            "BigUint { buckets: [123456789000] }",
-            format!("{:?}", number)
-        );
-
+    fn leading_zeros() {
         let number =
             BigUint::from_str("00000000000000000000000000123456789000").unwrap_or_default();
         assert_eq!(
-            "BigUint { buckets: [123456789000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::from_str("123456789123456789123456789123456789").unwrap_or_default();
-        assert_eq!(
-            "BigUint { buckets: [123456789123456789, 123456789123456789] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::from_str("123456789123456789023456789023456789000000000000000001")
-            .unwrap_or_default();
-        assert_eq!(
-            "BigUint { buckets: [1, 23456789023456789, 123456789123456789] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::from_str("100000000000000000000000000000000000000000000000000001")
-            .unwrap_or_default();
-        assert_eq!(
-            "BigUint { buckets: [1, 0, 100000000000000000] }",
-            format!("{:?}", number)
-        );
-
-        let number = BigUint::from_str("1000000000000000000000000000000000000000000000000000011")
-            .unwrap_or_default();
-        assert_eq!(
-            "BigUint { buckets: [11, 0, 0, 1] }",
+            "BigUint { buckets: [456789000, 123] }",
             format!("{:?}", number)
         );
     }
 
     #[test]
-    fn biguint_to_string() {
+    fn multiple_full_buckets() {
+        let number = BigUint::from_str("123456789123456789123456789123456789").unwrap_or_default();
+        assert_eq!(
+            "BigUint { buckets: [123456789, 123456789, 123456789, 123456789] }",
+            format!("{:?}", number)
+        );
+    }
+
+    #[test]
+    fn middle_zero_buckets() {
+        let number = BigUint::from_str("1000000000000000000000000000000000000000000000000000011")
+            .unwrap_or_default();
+        assert_eq!(
+            "BigUint { buckets: [11, 0, 0, 0, 0, 0, 1] }",
+            format!("{:?}", number)
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn alpha_panics() {
+        let _ = BigUint::from_str("Hello, world!").expect("");
+    }
+}
+
+#[cfg(test)]
+mod biguint_new {
+    use nordint::BigUint;
+
+    #[test]
+    fn empty_string() {
+        let number = BigUint::new("");
+        assert_eq!("BigUint { buckets: [] }", format!("{:?}", number));
+    }
+
+    #[test]
+    fn only_digits() {
+        let number = BigUint::new("123456789000");
+        assert_eq!(
+            "BigUint { buckets: [456789000, 123] }",
+            format!("{:?}", number)
+        );
+    }
+
+    #[test]
+    fn underscore_separated_digits() {
+        let number = BigUint::new("123_456_789_000");
+        assert_eq!(
+            "BigUint { buckets: [456789000, 123] }",
+            format!("{:?}", number)
+        );
+    }
+
+    #[test]
+    fn comma_separated_digits() {
+        let number = BigUint::new("123,456,789,000");
+        assert_eq!(
+            "BigUint { buckets: [456789000, 123] }",
+            format!("{:?}", number)
+        );
+    }
+
+    #[test]
+    fn leading_zeros() {
+        let number = BigUint::new("00000000000000000000000000123456789000");
+        assert_eq!(
+            "BigUint { buckets: [456789000, 123] }",
+            format!("{:?}", number)
+        );
+    }
+
+    #[test]
+    fn multiple_full_buckets() {
+        let number = BigUint::new("123456789123456789123456789123456789");
+        assert_eq!(
+            "BigUint { buckets: [123456789, 123456789, 123456789, 123456789] }",
+            format!("{:?}", number)
+        );
+    }
+
+    #[test]
+    fn middle_zero_buckets() {
+        let number = BigUint::new("1_000000000_000000000_000000000_000000000_000000000_000000011");
+        assert_eq!(
+            "BigUint { buckets: [11, 0, 0, 0, 0, 0, 1] }",
+            format!("{:?}", number)
+        );
+    }
+}
+
+
+#[cfg(test)]
+mod biguint_to_string {
+    use nordint::BigUint;
+
+    #[test]
+    fn emtpy() {
         let number = BigUint::empty();
         assert_eq!("", number.to_string());
+    }
 
+    #[test]
+    fn zero() {
         let number = BigUint::zero();
         assert_eq!("0", number.to_string());
+    }
 
+    #[test]
+    fn one() {
         let number = BigUint::one();
         assert_eq!("1", number.to_string());
+    }
 
-        let number = BigUint::new("123,456,789,000");
-        assert_eq!("123456789000", number.to_string());
-
-        let number = BigUint::new("123456789123456789_123456789123456789");
+    #[test]
+    fn multiple_buckets() {
+        let number = BigUint::new("123456789_123456789_123456789_123456789");
         assert_eq!("123456789123456789123456789123456789", number.to_string());
+    }
 
-        let number = BigUint::new("123456789123456789_023456789023456789_000000000000000001");
-        assert_eq!(
-            "123456789123456789023456789023456789000000000000000001",
-            number.to_string()
-        );
-
-        let number = BigUint::new("100000000000000000_000000000000000000_000000000000000001");
-        assert_eq!(
-            "100000000000000000000000000000000000000000000000000001",
-            number.to_string()
-        );
-
-        let number = BigUint::new("1_000000000000000000_000000000000000000_000000000000000011");
+    #[test]
+    fn middle_zero_buckets() {
+        let number = BigUint::new("1_000000000_000000000_000000000_000000000_000000000_000000011");
         assert_eq!(
             "1000000000000000000000000000000000000000000000000000011",
             number.to_string()
         );
-
-        let number = BigUint::new("182378728712487128471297918269128659182591287591285619256976595761928576192785619587612985614951629857634895761345610495710297851092485709128560192854609128589127540981265409812746509182750981273409812367409812375098312650938127409182750938125609283740918274012937840912378501923865091287401974019235601927850129385701285601298374012984710238471092586091238741209874091286509123874019287409128560912785019285601285655");
-        assert_eq!(number.to_string(), "182378728712487128471297918269128659182591287591285619256976595761928576192785619587612985614951629857634895761345610495710297851092485709128560192854609128589127540981265409812746509182750981273409812367409812375098312650938127409182750938125609283740918274012937840912378501923865091287401974019235601927850129385701285601298374012984710238471092586091238741209874091286509123874019287409128560912785019285601285655");
     }
 
     #[test]
-    fn biguint_add_assign() {
-        let mut lhs = BigUint::one();
+    fn large_number() {
+        let number = BigUint::new("182378728712487128471000290908069000659082591207591280619256076590761028570000005019587612985614951629857034095761345610495710297851092485709128560100050600120589107540080065409812746509182750981273409812367409812375098312650938127409182750938125609283740918274012937840912378501923865091287401974019235601927850129385701285601298374012984710238471092586091238741209874091286509123874019287409128560912785019285601285655");
+        assert_eq!(number.to_string(), "182378728712487128471000290908069000659082591207591280619256076590761028570000005019587612985614951629857034095761345610495710297851092485709128560100050600120589107540080065409812746509182750981273409812367409812375098312650938127409182750938125609283740918274012937840912378501923865091287401974019235601927850129385701285601298374012984710238471092586091238741209874091286509123874019287409128560912785019285601285655");
+    }
+}
+
+
+#[cfg(test)]
+mod biguint_add_assign {
+    use nordint::BigUint;
+
+    #[test] 
+    fn undefined_on_empty_lhs() {
+        let mut actual = BigUint::empty();
         let rhs = BigUint::one();
-        lhs += &rhs;
-        assert_eq!(BigUint::new("2"), lhs);
+        actual += &rhs;
+        assert_eq!(BigUint::empty(), actual);
+    }
 
-        let mut lhs = BigUint::new("999_999_999_999_999_999");
+    #[test]
+    fn undefined_on_empty_rhs() {
+        let mut actual = BigUint::one();
+        let rhs = BigUint::empty();
+        actual += &rhs;
+        assert_eq!(BigUint::one(), actual);
+    }
+
+    #[test]
+    fn one_plus_one() {
+        let mut actual = BigUint::one();
         let rhs = BigUint::one();
-        lhs += &rhs;
-        assert_eq!(BigUint::new("1_000_000_000_000_000_000"), lhs);
+        actual += &rhs;
+        assert_eq!(BigUint::new("2"), actual);
+    }
 
-        let mut lhs = BigUint::new("999_999_999_999_999_999");
-        let rhs = BigUint::new("999_999_999_999_999_999");
-        let expected = BigUint::new("1_999_999_999_999_999_998");
-        lhs += &rhs;
-        assert_eq!(expected, lhs);
+    #[test]
+    fn carry_multiple_buckets_lhs_larger() {
+        let mut actual = BigUint::new("999_999_999_999_999_999_999_999_999_999_999_999");
+        let rhs = BigUint::one();
+        let expected = BigUint::new("1_000_000_000_000_000_000_000_000_000_000_000_000");
+        actual += &rhs;
+        assert_eq!(expected, actual);
+    }
 
-        let mut lhs = BigUint::new(
-            "[999_999_999_999_999_999] [999_999_999_999_999_999] [999_999_999_999_999_999]",
+    #[test]
+    fn carry_multiple_buckets_rhs_larger() {
+        let mut actual = BigUint::one();
+        let rhs = BigUint::new("999_999_999_999_999_999_999_999_999_999_999_999");
+        let expected = BigUint::new("1_000_000_000_000_000_000_000_000_000_000_000_000");
+        actual += &rhs;
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn all_full_buckets() {
+        let mut actual = BigUint::new(
+            "[999_999_999] [999_999_999] [999_999_999] [999_999_999] [999_999_999] [999_999_999]",
         );
         let rhs = BigUint::new(
-            "[999_999_999_999_999_999] [999_999_999_999_999_999] [999_999_999_999_999_999]",
+            "[999_999_999] [999_999_999] [999_999_999] [999_999_999] [999_999_999] [999_999_999]",
         );
         let expected = BigUint::new(
             "1_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_998",
         );
-        lhs += &rhs;
-        assert_eq!(expected, lhs);
-
-        let mut lhs = BigUint::new(
-            "[123_456_789_987_654_321] [123_456_789_987_654_321] [123_456_789_987_654_321]",
-        );
-        let rhs = BigUint::new(
-            "[987_654_321_123_456_789] [987_654_321_123_456_789] [987_654_321_123_456_789]",
-        );
-        let expected = BigUint::new(
-            "1_111_111_111_111_111_111_111_111_111_111_111_111_111_111_111_111_111_110",
-        );
-        lhs += &rhs;
-        assert_eq!(expected, lhs);
-
-        let mut lhs = BigUint::new(
-            "[123_456_789_987_654_321] [123_456_789_987_654_321] [123_456_789_987_654_321]",
-        );
-        let rhs = BigUint::one();
-        let expected =
-            BigUint::new("123_456_789_987_654_321_123_456_789_987_654_321_123_456_789_987_654_322");
-        lhs += &rhs;
-        assert_eq!(expected, lhs);
-
-        let mut lhs = BigUint::one();
-        let rhs = BigUint::new(
-            "[123_456_789_987_654_321] [123_456_789_987_654_321] [123_456_789_987_654_321]",
-        );
-        let expected =
-            BigUint::new("123_456_789_987_654_321_123_456_789_987_654_321_123_456_789_987_654_322");
-        lhs += &rhs;
-        assert_eq!(expected, lhs);
+        actual += &rhs;
+        assert_eq!(expected, actual);
     }
 
     #[test]
-    fn biguint_fib() {
+    fn fibonacci() {
         let expected = BigUint::empty();
         assert_eq!(BigUint::fib(0), expected);
 
@@ -285,4 +304,52 @@ mod biguint_tests {
         assert_eq!(expected, BigUint::fib(9999));
     }
 
+}
+
+#[cfg(test)]
+mod biguint_mul_assign_u64 {
+    use nordint::BigUint;
+
+    #[test]
+    fn undefined_for_empty_lhs() {
+        let mut actual = BigUint::empty();
+        let rhs: u64 = 999999999;
+        let expected = BigUint::empty();
+        actual *= rhs;
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn rhs_is_zero() {
+        let mut actual = BigUint::new("123456789987654321");
+        let rhs: u64 = 0;
+        let expected = BigUint::zero();
+        actual *= rhs;
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn rhs_is_one() {
+        let mut actual = BigUint::new("123456789987654321");
+        let rhs: u64 = 1;
+        let expected = actual.clone();
+        actual *= rhs;
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn rhs_is_max_bucket_lhs_is_not() {
+        let mut actual = BigUint::new("123456789987654321");
+        let rhs: u64 = 999999999;
+        let expected = BigUint::new("123456789864197531012345679");
+        actual *= rhs;
+        assert_eq!(expected, actual);
+    }
+
+    #[test]
+    fn fac_500() {
+        let expected = BigUint::new("1220136825991110068701238785423046926253574342803192842192413588385845373153881997605496447502203281863013616477148203584163378722078177200480785205159329285477907571939330603772960859086270429174547882424912726344305670173270769461062802310452644218878789465754777149863494367781037644274033827365397471386477878495438489595537537990423241061271326984327745715546309977202781014561081188373709531016356324432987029563896628911658974769572087926928871281780070265174507768410719624390394322536422605234945850129918571501248706961568141625359056693423813008856249246891564126775654481886506593847951775360894005745238940335798476363944905313062323749066445048824665075946735862074637925184200459369692981022263971952597190945217823331756934581508552332820762820023402626907898342451712006207714640979456116127629145951237229913340169552363850942885592018727433795173014586357570828355780158735432768888680120399882384702151467605445407663535984174430480128938313896881639487469658817504506926365338175055478128640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+        let actual = BigUint::fac(500);
+        assert_eq!(expected, actual);
+    }
 }
