@@ -1,3 +1,8 @@
+// author:  Erik Nordin
+// created: 07/30/2018
+// updated: 08/01/2018
+// contact: aeketn@gmail.com
+
 use std::ops::Add;
 use std::ops::Mul;
 use std::ops::Rem;
