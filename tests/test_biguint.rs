@@ -1,6 +1,9 @@
+#![feature(test)]
+
 extern crate nordint;
 
-mod init_tests {
+#[cfg(test)]
+mod biguint_tests {
     use nordint::BigUint;
     use std::str::FromStr;
 
