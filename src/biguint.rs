@@ -4,6 +4,7 @@
 // version: 0.1.0
 // contact: aeketn@gmail.com
 
+use std::cmp::min;
 use std::ops::AddAssign;
 use std::ops::MulAssign;
 use std::str::from_utf8;
@@ -23,7 +24,7 @@ pub const DIGITS_PER_BUCKET: usize = 9;
 /// *Example if bucket-size were 3 digits:*  
 /// Number: `123_000_000_000_000_004_560`  
 /// Internal: `BigUint { [560, 4, 0, 0, 0, 0, 123] }`
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct BigUint {
     buckets: Vec<u64>,
 }
@@ -209,21 +210,27 @@ impl ToString for BigUint {
 
 impl<'a> AddAssign<&'a BigUint> for BigUint {
     fn add_assign(&mut self, rhs: &BigUint) {
-        let rhs = &rhs.buckets;
         let lhs = &mut self.buckets;
+        let rhs = &rhs.buckets;
+        if lhs.is_empty() || rhs.is_empty() { 
+            return;
+        }
         let lhs_len = lhs.len();
         let rhs_len = rhs.len();
         let mut carry = add_slices(&mut lhs[..], &rhs[..]);
         if lhs_len < rhs_len {
             lhs.extend_from_slice(&rhs[lhs_len..]);
-            if carry == 1 {
-                carry = add_slices(&mut lhs[lhs_len..], &[carry]);
-            }
-        } else if lhs_len > rhs_len && carry == 1 {
-            carry = add_slices(&mut lhs[rhs_len..], &[carry]);
         }
         if carry == 1 {
-            lhs.push(1);
+            for index in min(lhs_len, rhs_len)..lhs.len() {
+                if carry == 0 {
+                    break;
+                }
+                carry = add_slices(&mut lhs[index..], &[carry]);
+            }
+            if carry == 1 {
+                lhs.push(1);
+            }
         }
     }
 }
@@ -245,6 +252,13 @@ fn add_slices(lhs: &mut [u64], rhs: &[u64]) -> u64 {
 
 impl MulAssign<u64> for BigUint {
     fn mul_assign(&mut self, rhs: u64) {
+        if rhs == 1 || self.buckets.is_empty() { 
+            return;
+        }
+        if rhs == 0 {
+            self.buckets = vec![0];
+            return;
+        }
         let mut carry = 0;
         for bucket in &mut self.buckets {
             *bucket *= rhs;
