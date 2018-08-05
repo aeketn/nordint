@@ -1,23 +1,28 @@
 # Goal of this Project
-To understand the Schonhage-Strassen Algorithm of multiplication  
-and implement the algorithm for a simple Big Integer struct in Rust.
+To understand the Schonhage-Strassen Algorithm of multiplication and implement the algorithm for a simple Big Integer struct in Rust.
 
 ## Breakdown of Directories
 ### rings-and-groups -- A practice exercise to understand Discrete Fourier Transforms
 ### dft-matrices -- A practice exercise to understand Discrete Fourier Transforms
 ### nordint -- The Big Integer Implementation
 
-# About: rings-and-groups
+# About: Exercise 01 rings-and-groups
 
 This is a practice exercise geared toward understanding how the Discrete Fourier Transform (DFT) works. Building a table under some modulus N for the operators addition and multiplication.  
 
 Notably, it is imporant to notice that there are no zeros outside of the first row and first column for a multiplication table where N is a prime number.
 
-# About: dft-tables
+# About: Exercise 02 dft-tables
 
 This is a practice exercise that expands on the rings-and-groups exercise. This exercise focuses solely on the multiplication table as it applies to the nth roots of unity for a given N.  
 
 In this exercise, notice patterns where N is a power of 2 and how that aligns with the numbers 1, i, -1, and -i.
+
+# About: Exercise 03 number-theoretic-transform
+
+This is a practice exercise that expands on the dft-tables exercise. This exercise applies a Number-Theoretic Transform (NTT, a special case of the DFT) that is defined specifically for modular arithmetic on integers. No complex numbers are used in this transform. Rather, the unit circle in the complex plane (regular DFT) is replaced in theory with cycling around the modulus of a given range of integers (NTT).  
+
+*Helpful Reading on NTT:* https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 
 # About: nordint
 A Simple (Unoptimized) Big Integer in Rust  

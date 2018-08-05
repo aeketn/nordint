@@ -1,0 +1,6 @@
+[package]
+name = "exercise-03-number-theoretic-transform"
+version = "0.1.0"
+authors = ["Erik <aeketn@gmail.com>"]
+
+[dependencies]
