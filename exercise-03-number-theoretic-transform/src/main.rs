@@ -105,15 +105,15 @@ fn prime_factors_of(mut number: u64) -> Vec<u64> {
 /// (Example, n = 5): http://www.wolframalpha.com/input/?i=integers+mod+5
 fn dft_matrix(n: u64) -> Vec<Vec<u64>> {
     let cap = n as usize - 1;
-    let mut table = Vec::with_capacity(cap);
+    let mut matrix = Vec::with_capacity(cap);
     for i in 0..n {
         let mut row = Vec::with_capacity(cap);
         for j in 0..n {
             row.push(i * j % n);
         }
-        table.push(row);
+        matrix.push(row);
     }
-    table
+    matrix
 }
 
 /// Finds a modulus M such that:
@@ -126,7 +126,10 @@ fn find_modulus(elements: &[u64]) -> NttError<u64> {
         return Err("[NttError]: Attempt to transform nothing".to_string());
     }
 
-    let max_elem = *elements.iter().max().unwrap();
+    let max_elem = *elements
+        .iter()
+        .max()
+        .expect("[NttError]: Could not define a maximum element.");
     let largest = max(n, max_elem);
     let start = (largest - 1) / n;
 
@@ -136,7 +139,7 @@ fn find_modulus(elements: &[u64]) -> NttError<u64> {
             return Ok(modulus);
         }
     }
-    unreachable!();
+    Err("[NttError]: Could not find working modulus for the provided vector.".to_string())
 }
 
 /// Finds a generator under the given modulus:
@@ -174,7 +177,8 @@ fn ntt(elements: &[u64]) -> NttError<Vec<u64>> {
     let n = elements.len() as u64;
     let modulus = find_modulus(elements)?;
     let omega = find_omega(n, modulus)?;
-    Ok(dft_matrix(elements.len() as u64)
+    Ok(
+        dft_matrix(n)
         .iter()
         .map(|row| {
             elements
@@ -183,7 +187,8 @@ fn ntt(elements: &[u64]) -> NttError<Vec<u64>> {
                 .map(|(elem, ij)| elem * omega.pow_mod(*ij, modulus))
                 .sum::<u64>()
                 % modulus
-        }).collect::<Vec<u64>>())
+        }).collect::<Vec<u64>>()
+    )
 }
 
 /// Inverse Number-Theoretic Transform
@@ -191,7 +196,8 @@ fn intt(elements: &[u64]) -> NttError<Vec<u64>> {
     let n = elements.len() as u64;
     let modulus = find_modulus(elements)?;
     let omega = find_omega(n, modulus)?;
-    Ok(dft_matrix(elements.len() as u64)
+    Ok(
+        dft_matrix(n)
         .iter()
         .map(|row| {
             elements
@@ -201,7 +207,8 @@ fn intt(elements: &[u64]) -> NttError<Vec<u64>> {
                 .sum::<u64>()
                 * n.inv_pow_mod(1, modulus)
                 % modulus
-        }).collect::<Vec<u64>>())
+        }).collect::<Vec<u64>>()
+    )
 }
 
 /// Computes the NTT on multiple input vectors, then computes the INTT and verifies 
