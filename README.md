@@ -6,21 +6,27 @@ To understand the Schonhage-Strassen Algorithm of multiplication and implement t
 ### dft-matrices -- A practice exercise to understand Discrete Fourier Transforms
 ### nordint -- The Big Integer Implementation
 
-# About: Exercise 01 rings-and-groups
+# About: Exercise 01 Rings and Groups
 
-This is a practice exercise geared toward understanding how the Discrete Fourier Transform (DFT) works. Building a table under some modulus N for the operators addition and multiplication.  
+This is a practice exercise geared toward understanding how the `Discrete Fourier Transform (DFT)` works. Building a table under some modulus `N` for the operators addition and multiplication.  
 
-Notably, it is imporant to notice that there are no zeros outside of the first row and first column for a multiplication table where N is a prime number.
+It is imporant to notice that there are no zeros outside of the first row and first column for a multiplication table where `N` is a prime number.
 
-# About: Exercise 02 dft-tables
+# About: Exercise 02 DFT-Tables
 
-This is a practice exercise that expands on the rings-and-groups exercise. This exercise focuses solely on the multiplication table as it applies to the nth roots of unity for a given N.  
+This is a practice exercise that expands on the `Rings and Groups` exercise. This exercise focuses solely on the multiplication table as it applies to the `nth roots of unity` for a given `N`.  
 
-In this exercise, notice patterns where N is a power of 2 and how that aligns with the numbers 1, i, -1, and -i.
+In this exercise, notice patterns where `N` is a `power of 2` and how that aligns with the numbers `1`, `i`, `-1`, and `-i`.
 
-# About: Exercise 03 number-theoretic-transform
+# About: Exercise 03 Number-Theoretic Transform
 
-This is a practice exercise that expands on the dft-tables exercise. This exercise applies a Number-Theoretic Transform (NTT, a special case of the DFT) that is defined specifically for modular arithmetic on integers. No complex numbers are used in this transform. Rather, the unit circle in the complex plane (regular DFT) is replaced in theory with cycling around the modulus of a given range of integers (NTT).  
+This is a practice exercise that expands on the `DFT Tables` exercise. This exercise applies a `Number-Theoretic Transform (NTT)`, a special case of the `DFT`) that is defined specifically for modular arithmetic on integers. No complex numbers are used in this transform. Rather, the unit circle in the complex plane `(regular DFT)` is replaced in theory with cycling around the modulus of a given range of integers `(NTT)`.  
+
+*Helpful Reading on NTT:* https://www.nayuki.io/page/number-theoretic-transform-integer-dft
+
+# About: Exercise 04 Convolution Theorem
+
+This is a practice exercise that expands on the `Number-Theoretic Transform` exercise. This exercise applies the `NTT` to two arrays of numbers and convolves them using `point-wise multiplication`. Once the convolution has been computed, the point-wise product is then transformed through the `INTT`. The result is the equivalent of multiplying the two numbers that the arrays represent. Details about how to interpret the convolution are specified in the `comments` within the `main()`.
 
 *Helpful Reading on NTT:* https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 
