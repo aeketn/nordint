@@ -30,6 +30,12 @@ This is a practice exercise that expands on the `Number-Theoretic Transform` exe
 
 *Helpful Reading on NTT:* https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 
+# About: Exercise 05 Fast Fourier Transform
+
+This is a practice exercise that expands on the `Number-Theoretic Transform` exercise. The `Fast Fourier Transform (FFT)` computes the same result as the `Number-Theoretic Transform (NTT)` in `O(n log(n))` time, down from `O(n^2)` time. This particular `FFT` ipmlementation is recursive and follows the `Cooley-Tukey` algorithm.
+
+More reading on `Cooley-Tukey FFT`: https://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm 
+
 # About: nordint
 A Simple (Unoptimized) Big Integer in Rust  
 
