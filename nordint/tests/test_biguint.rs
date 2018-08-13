@@ -60,7 +60,7 @@ mod biguint_from_str {
     fn digits_only() {
         let number = BigUint::from_str("123456789000").unwrap_or_default();
         assert_eq!(
-            "BigUint { buckets: [456789000, 123] }",
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
             format!("{:?}", number)
         );
     }
@@ -70,7 +70,7 @@ mod biguint_from_str {
         let number =
             BigUint::from_str("00000000000000000000000000123456789000").unwrap_or_default();
         assert_eq!(
-            "BigUint { buckets: [456789000, 123] }",
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
             format!("{:?}", number)
         );
     }
@@ -79,7 +79,7 @@ mod biguint_from_str {
     fn multiple_full_buckets() {
         let number = BigUint::from_str("123456789123456789123456789123456789").unwrap_or_default();
         assert_eq!(
-            "BigUint { buckets: [123456789, 123456789, 123456789, 123456789] }",
+            "BigUint { buckets: [89, 67, 45, 23, 91, 78, 56, 34, 12, 89, 67, 45, 23, 91, 78, 56, 34, 12] }",
             format!("{:?}", number)
         );
     }
@@ -89,7 +89,7 @@ mod biguint_from_str {
         let number = BigUint::from_str("1000000000000000000000000000000000000000000000000000011")
             .unwrap_or_default();
         assert_eq!(
-            "BigUint { buckets: [11, 0, 0, 0, 0, 0, 1] }",
+            "BigUint { buckets: [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] }",
             format!("{:?}", number)
         );
     }
@@ -115,7 +115,7 @@ mod biguint_new {
     fn only_digits() {
         let number = BigUint::new("123456789000");
         assert_eq!(
-            "BigUint { buckets: [456789000, 123] }",
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
             format!("{:?}", number)
         );
     }
@@ -124,7 +124,7 @@ mod biguint_new {
     fn underscore_separated_digits() {
         let number = BigUint::new("123_456_789_000");
         assert_eq!(
-            "BigUint { buckets: [456789000, 123] }",
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
             format!("{:?}", number)
         );
     }
@@ -133,7 +133,7 @@ mod biguint_new {
     fn comma_separated_digits() {
         let number = BigUint::new("123,456,789,000");
         assert_eq!(
-            "BigUint { buckets: [456789000, 123] }",
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
             format!("{:?}", number)
         );
     }
@@ -142,7 +142,7 @@ mod biguint_new {
     fn leading_zeros() {
         let number = BigUint::new("00000000000000000000000000123456789000");
         assert_eq!(
-            "BigUint { buckets: [456789000, 123] }",
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
             format!("{:?}", number)
         );
     }
@@ -151,7 +151,7 @@ mod biguint_new {
     fn multiple_full_buckets() {
         let number = BigUint::new("123456789123456789123456789123456789");
         assert_eq!(
-            "BigUint { buckets: [123456789, 123456789, 123456789, 123456789] }",
+            "BigUint { buckets: [89, 67, 45, 23, 91, 78, 56, 34, 12, 89, 67, 45, 23, 91, 78, 56, 34, 12] }",
             format!("{:?}", number)
         );
     }
@@ -160,7 +160,7 @@ mod biguint_new {
     fn middle_zero_buckets() {
         let number = BigUint::new("1_000000000_000000000_000000000_000000000_000000000_000000011");
         assert_eq!(
-            "BigUint { buckets: [11, 0, 0, 0, 0, 0, 1] }",
+            "BigUint { buckets: [11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1] }",
             format!("{:?}", number)
         );
     }
@@ -246,7 +246,7 @@ mod biguint_add_assign {
         let rhs = BigUint::one();
         let expected = BigUint::new("1_000_000_000_000_000_000_000_000_000_000_000_000");
         actual += &rhs;
-        assert_eq!(expected, actual);
+        assert_eq!(actual, expected);
     }
 
     #[test]
@@ -255,7 +255,7 @@ mod biguint_add_assign {
         let rhs = BigUint::new("999_999_999_999_999_999_999_999_999_999_999_999");
         let expected = BigUint::new("1_000_000_000_000_000_000_000_000_000_000_000_000");
         actual += &rhs;
-        assert_eq!(expected, actual);
+        assert_eq!(actual, expected);
     }
 
     #[test]
@@ -270,7 +270,7 @@ mod biguint_add_assign {
             "1_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_999_998",
         );
         actual += &rhs;
-        assert_eq!(expected, actual);
+        assert_eq!(actual, expected);
     }
 
     #[test]
@@ -307,49 +307,74 @@ mod biguint_add_assign {
 }
 
 #[cfg(test)]
-mod biguint_mul_assign_u64 {
+mod biguint_mul_assign_i64 {
     use nordint::BigUint;
 
     #[test]
     fn undefined_for_empty_lhs() {
         let mut actual = BigUint::empty();
-        let rhs: u64 = 999999999;
+        let rhs: i64 = 999999999;
         let expected = BigUint::empty();
         actual *= rhs;
-        assert_eq!(expected, actual);
+        assert_eq!(actual, expected);
     }
 
     #[test]
     fn rhs_is_zero() {
         let mut actual = BigUint::new("123456789987654321");
-        let rhs: u64 = 0;
+        let rhs: i64 = 0;
         let expected = BigUint::zero();
         actual *= rhs;
-        assert_eq!(expected, actual);
+        assert_eq!(actual, expected);
     }
 
     #[test]
     fn rhs_is_one() {
         let mut actual = BigUint::new("123456789987654321");
-        let rhs: u64 = 1;
+        let rhs: i64 = 1;
         let expected = actual.clone();
         actual *= rhs;
-        assert_eq!(expected, actual);
+        assert_eq!(actual, expected);
     }
 
     #[test]
     fn rhs_is_max_bucket_lhs_is_not() {
         let mut actual = BigUint::new("123456789987654321");
-        let rhs: u64 = 999999999;
+        let rhs: i64 = 999999999;
         let expected = BigUint::new("123456789864197531012345679");
         actual *= rhs;
-        assert_eq!(expected, actual);
+        assert_eq!(actual, expected);
     }
 
     #[test]
     fn fac_500() {
         let expected = BigUint::new("1220136825991110068701238785423046926253574342803192842192413588385845373153881997605496447502203281863013616477148203584163378722078177200480785205159329285477907571939330603772960859086270429174547882424912726344305670173270769461062802310452644218878789465754777149863494367781037644274033827365397471386477878495438489595537537990423241061271326984327745715546309977202781014561081188373709531016356324432987029563896628911658974769572087926928871281780070265174507768410719624390394322536422605234945850129918571501248706961568141625359056693423813008856249246891564126775654481886506593847951775360894005745238940335798476363944905313062323749066445048824665075946735862074637925184200459369692981022263971952597190945217823331756934581508552332820762820023402626907898342451712006207714640979456116127629145951237229913340169552363850942885592018727433795173014586357570828355780158735432768888680120399882384702151467605445407663535984174430480128938313896881639487469658817504506926365338175055478128640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
         let actual = BigUint::fac(500);
-        assert_eq!(expected, actual);
+        assert_eq!(actual, expected);
+    }
+}
+
+
+#[cfg(test)]
+mod biguint_mul_assign_biguint {
+    use nordint::BigUint;
+
+
+    #[test]
+    fn schonhage_strassen_small() {
+        let lhs = BigUint::new("375");
+        let rhs = BigUint::new("859");
+        let actual = &lhs * &rhs;
+        let expected = BigUint::new("322,125");
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn schonhage_strassen_large() {
+        let lhs = BigUint::new("123456789987654321123456789987654321123456789987654321123456789987654321");
+        let rhs = BigUint::new("192837465564738291192837465564738291123456789987654321123456789987654321");
+        let actual = &lhs * &rhs;
+        let expected = BigUint::new("23807094487977417195524266316260245358675922650621440574649097434648265751573598736641889579856426908359061416704770573997866200731595789971041");
+        assert_eq!(actual, expected);
     }
 }
