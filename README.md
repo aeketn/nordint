@@ -2,6 +2,9 @@
 To understand the Schönhage-Strassen Algorithm of multiplication and implement the algorithm for a simple Big Integer struct in Rust.  
 I wrote this project for an 8-week summer course on Rust programming. The project topic was entirely up to the student. This is an algorithm I had been wanting to explore.
 
+# Rustc Version:
+rustc 1.30.0-nightly (d767ee116 2018-08-15)
+
 ## Breakdown of Directories
 ### nordint -- The Big Integer Implementation
 ### rings-and-groups -- A practice exercise to understand Discrete Fourier Transforms (DFT)
