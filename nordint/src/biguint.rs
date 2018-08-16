@@ -1,34 +1,35 @@
 // author:  Erik Nordin
 // created: 07/14/2018
-// updated: 08/04/2018
+// updated: 08/15/2018
 // version: 0.1.0
 // contact: aeketn@gmail.com
 
-use std::cmp::min;
-use std::cmp::max;
-use std::ops::AddAssign;
-use std::ops::MulAssign;
-use std::str::from_utf8;
-use std::str::FromStr;
 use ParseBigIntError;
-use std::ops::Mul;
-use std::ops::Rem;
+use std::cmp::{min, max};
+use std::convert::From;
+use std::ops::{AddAssign, Mul, MulAssign, Rem};
+use std::str::{from_utf8, FromStr};
 use std::vec::Vec;
 
-
-pub const LIMIT: i64 = 100; // under 10 digits
-pub const DIGITS_PER_BUCKET: usize = 2;
+const BUCKET_CAP: i64 = 100; 
+const DIGITS_PER_BUCKET: usize = 2;
 
 /// An unbounded, unsigned integer.
 ///
 /// # Internal Representation
 /// `BigUint` is represnted internally by a `Vector<i64>`.  
 /// Each index of the vector (referred to as a `bucket`) contains
-/// up to 9 digits of a number, with the highest-order digits stored at the tail.  
+/// up to 2 digits of a number, with the highest-order digits stored at the tail.  
 ///
-/// *Example if bucket-size were 3 digits:*  
+/// *Example:*
 /// Number: `123_000_000_000_000_004_560`  
-/// Internal: `BigUint { [560, 4, 0, 0, 0, 0, 123] }`
+/// Internal: `BigUint { [560, 4, 0, 0, 0, 30, 12,] }`
+/// ```
+/// extern crate nordint;
+/// use nordint::*;
+/// let number = BigUint::new("123,000,000,000,000,004,560");
+/// assert_eq!(format!("{:?}", number), "BigUint { buckets: [60, 45, 0, 0, 0, 0, 0, 0, 0, 23, 1] }");
+/// ```
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct BigUint {
     buckets: Vec<i64>,
@@ -38,7 +39,7 @@ impl BigUint {
     /// Creates an empty `BigUint` with default capacity 10
     pub fn empty() -> BigUint {
         BigUint {
-            buckets: Vec::with_capacity(10),
+            buckets: Vec::with_capacity(100),
         }
     }
 
@@ -86,18 +87,6 @@ impl BigUint {
                     .collect::<String>(),
             ).unwrap()
         }
-    }
-
-    pub fn from_i64(mut number: i64) -> BigUint {
-        if number == 0 {
-            return BigUint::zero();
-        }
-        let mut buckets = Vec::new();
-        while number > 0 {
-            buckets.push(number % 100);
-            number /= 100;
-        }
-        BigUint { buckets }
     }
 
     /// Returns the current capacity in `buckets`.  
@@ -155,10 +144,11 @@ impl BigUint {
         }
     }
 
-    pub fn fac(n: usize) -> BigUint {
+    /// Calculates the factorial of a given number
+    pub fn fac(n: u32) -> BigUint {
         let mut result = BigUint::one();
         (1..n + 1).rev().for_each(|x| {
-            result *= x as i64;
+            result *= x;
         });
         result
     }
@@ -168,6 +158,66 @@ impl Default for BigUint {
     /// Default `BigUint` is empty.
     fn default() -> BigUint {
         BigUint::empty()
+    }
+}
+
+/// Converts a u32 to a BigUint
+impl From<u32> for BigUint {
+    fn from(mut number: u32) -> BigUint {
+        if number == 0 {
+            return BigUint::zero();
+        }
+        let mut buckets = Vec::new();
+        while number > 0 {
+            buckets.push((number % 100) as i64);
+            number /= 100;
+        }
+        BigUint { buckets }
+    } 
+}
+
+/// Converts a u64 to a BigUint
+impl From<u64> for BigUint {
+    fn from(mut number: u64) -> BigUint {
+        if number == 0 {
+            return BigUint::zero();
+        }
+        let mut buckets = Vec::new();
+        while number > 0 {
+            buckets.push((number % 100) as i64);
+            number /= 100;
+        }
+        BigUint { buckets }
+    }
+}
+
+/// converts a u128 to a BigUint
+impl From<u128> for BigUint {
+    fn from(mut number: u128) -> BigUint {
+        if number == 0 {
+            return BigUint::zero();
+        }
+        let mut buckets = Vec::new();
+        while number > 0 {
+            buckets.push((number % 100) as i64);
+            number /= 100;
+        }
+        BigUint { buckets }
+    }
+}
+
+/// Converts a usize to a BigUint
+impl From<usize> for BigUint {
+    fn from(mut number: usize) -> BigUint {
+        if number == 0 {
+            return BigUint::zero();
+        }
+        let mut buckets = Vec::new();
+        while number > 0 {
+            buckets.push((number % 100) as i64);
+            number /= 100;
+        }
+        BigUint { buckets }
     }
 }
 
@@ -188,7 +238,7 @@ impl FromStr for BigUint {
             }
         }
 
-        let mut number = BigUint::with_capacity(num_as_str.len() / DIGITS_PER_BUCKET + 1);
+        let mut number = BigUint::with_capacity((num_as_str.len() / DIGITS_PER_BUCKET) * 2);
         let mut buckets = num_as_str
             .as_bytes()
             .iter()
@@ -207,6 +257,7 @@ impl FromStr for BigUint {
 }
 
 impl ToString for BigUint {
+    /// Converts a BigUint into a string of an integer represented in base 10.
     fn to_string(&self) -> String {
         if self.buckets.is_empty() {
             return String::new();
@@ -226,6 +277,7 @@ impl ToString for BigUint {
 }
 
 impl<'a> AddAssign<&'a BigUint> for BigUint {
+    /// Adds a BigUint into another BigUint
     fn add_assign(&mut self, rhs: &BigUint) {
         let lhs = &mut self.buckets;
         let rhs = &rhs.buckets;
@@ -252,13 +304,14 @@ impl<'a> AddAssign<&'a BigUint> for BigUint {
     }
 }
 
+/// Adds two slices point-wise, carrying at the limit for each bucket
 #[inline]
 fn add_slices(lhs: &mut [i64], rhs: &[i64]) -> i64 {
     let mut carry = 0;
     lhs.iter_mut().zip(rhs.iter()).for_each(|(lx, rx)| {
         *lx += rx + carry;
-        carry = if *lx >= LIMIT {
-            *lx %= LIMIT;
+        carry = if *lx >= BUCKET_CAP {
+            *lx %= BUCKET_CAP;
             1
         } else {
             0
@@ -267,8 +320,10 @@ fn add_slices(lhs: &mut [i64], rhs: &[i64]) -> i64 {
     carry
 }
 
-impl MulAssign<i64> for BigUint {
-    fn mul_assign(&mut self, rhs: i64) {
+/// Multiplies an i64 into each bucket of the BigUint
+impl MulAssign<u32> for BigUint {
+    fn mul_assign(&mut self, rhs: u32) {
+        let rhs = rhs as i64;
         if rhs == 1 || self.buckets.is_empty() { 
            return;
         }
@@ -280,16 +335,14 @@ impl MulAssign<i64> for BigUint {
         for bucket in &mut self.buckets {
             *bucket *= rhs;
             *bucket += carry;
-            carry = *bucket / LIMIT;
-            *bucket %= LIMIT;
+            carry = *bucket / BUCKET_CAP;
+            *bucket %= BUCKET_CAP;
         }
         if 0 < carry {
-            self.buckets.extend_from_slice(&BigUint::from_i64(carry).buckets[..]);
+            self.buckets.extend_from_slice(&BigUint::from(carry as u64).buckets[..]);
         }
     }
 }
-
-
 
 /// Number-Theoretic Transform Error
 type NttError<T> = Result<T, String>;
@@ -450,9 +503,9 @@ fn find_generator(modulus: i64) -> NttError<i64> {
 
 /// Finds the value of omega for the Number-Theore9803tic Transform under a given modulus M.
 /// Omega is defined as the following:
-///   Let g = a generator under the modulus M
-///   Let k = (M - 1) / (the number of elements that will be transformed)
-///   Let omega = g^k mod M
+///   `Let g = a generator under the modulus M`
+///   `Let k = (M - 1) / (the number of elements that will be transformed)`
+///   `Let omega = g^k mod M`
 fn find_omega(n: i64, modulus: i64) -> NttError<i64> {
     let k = (modulus - 1) / n;
     let generator = find_generator(modulus)?;
@@ -461,11 +514,11 @@ fn find_omega(n: i64, modulus: i64) -> NttError<i64> {
 
 
 /// Collects every other element of a slice of [i64] given a starting index
-///     Example: [1, 5, 3, 5, 2, 6, 9] where start_index == 0
-///     Returns: [1, 3, 2, 9]
+///     `Example: [1, 5, 3, 5, 2, 6, 9] where start_index == 0`
+///     `Returns: [1, 3, 2, 9]`
 /// 
-///     Example: [1, 5, 3, 5, 2, 6, 9, 4] where start_index == 1
-///     Returns: [5, 5, 6, 4]
+///     `Example: [1, 5, 3, 5, 2, 6, 9, 4] where start_index == 1`
+///     `Returns: [5, 5, 6, 4]`
 fn every_other_element_starting_at(start_index: usize, elements: &[i64]) -> Vec<i64> {
     (start_index..elements.len())
         .step_by(2)
@@ -518,11 +571,14 @@ where
 /// of the Cooley-Tukey algorithm. The cooley_tukey function is called
 /// using modular exponentiation. 
 /// 
-/// The vector that is passed in is adjusted to be a power of two
-/// that is equal to or larger than the original length.
+/// The vectors that are passed in is adjusted to be a power of two
+/// that is equal to or larger than the sum of their lengths.
 /// 
-/// This function returns the omega and modulus used as a tuple. 
+/// This function returns the omega and modulus used as part of the tuple.
 /// It is necessary that the IFFT algorithm uses the same omega and modulus.
+/// 
+/// The last item in the tuple is the pointwise-multiplied convolution of the two
+/// transformed vectors.
 fn fft_convolution(lhs: &mut Vec<i64>, rhs: &mut Vec<i64>) -> NttError<(i64, i64, Vec<i64>)> {
     let n = ((lhs.len() + rhs.len()) as f64).log2().ceil().exp2() as i64;
     let modulus = find_convolution_modulus(n, &lhs, &rhs)?;
@@ -580,6 +636,10 @@ fn ifft(omega: i64, modulus: i64, elements: &mut Vec<i64>) -> NttError<()> {
 
 impl<'a, 'b> Mul<&'b BigUint> for &'a BigUint {
     type Output = BigUint;
+    /// Implements the Schonhage-Strassen algorithm of Multiplication.
+    /// Uses the Fast Fourier Transform to convole the two numbers and then
+    /// inverse Fast Fourier Transform them back. Applies necessary carrying,
+    /// and then returns the result of the multiplication. 
     fn mul(self, rhs: &'b BigUint) -> BigUint {
         let mut lhs = self.buckets.clone();
         let mut rhs = rhs.buckets.clone();
@@ -592,13 +652,14 @@ impl<'a, 'b> Mul<&'b BigUint> for &'a BigUint {
     }
 }
 
+/// Applies any carrying in all buckets that may be over capacity.
 pub fn apply_carries(buckets: &mut Vec<i64>) {
     let mut carry = 0;
     println!("buckets before = {:?}", buckets);
     for bucket in buckets.iter_mut() {
         *bucket += carry;
-        carry = *bucket / LIMIT;
-        *bucket %= LIMIT;
+        carry = *bucket / BUCKET_CAP;
+        *bucket %= BUCKET_CAP;
     }
     while carry > 0 {
         buckets.push(carry % 100);
