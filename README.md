@@ -7,12 +7,18 @@ I wrote this project for an 8-week summer course on Rust programming. The projec
 rustc 1.30.0-nightly (d767ee116 2018-08-15)
 
 ## Breakdown of Directories
-### nordint -- The Big Integer Implementation
-### rings-and-groups -- A practice exercise to understand Discrete Fourier Transforms (DFT)
-### dft-matrices -- A practice exercise to understand Discrete Fourier Transforms (DFT)
-### number-theoretic-transform -- A practice exercise to understand Number Theoretic Transforms (NTT)
-### convolution-theorem -- A practice exercise to understand how NTTs can be applied to multiplication of polynomials
-### fast-fourier-transform -- A practice exercise to understand the Fast Fourier Transform (FFT) version of the NTT. 
+### nordint 
+The Big Integer Implementation
+### rings-and-groups 
+A practice exercise to understand Discrete Fourier Transforms (DFT)
+### dft-matrices 
+A practice exercise to understand Discrete Fourier Transforms (DFT)
+### number-theoretic-transform 
+A practice exercise to understand Number Theoretic Transforms (NTT)
+### convolution-theorem 
+A practice exercise to understand how NTTs can be applied to multiplication of polynomials
+### fast-fourier-transform
+ A practice exercise to understand the Fast Fourier Transform (FFT) version of the NTT. 
 
 ### Thank you!
 Thank you to Professor Bart Massey of Portland State University for helping me get started and providing me with excellent reference material about the algorith.  
