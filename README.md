@@ -1,5 +1,6 @@
 # Goal of this Project
 To understand the Schönhage-Strassen Algorithm of multiplication and implement the algorithm for a simple Big Integer struct in Rust.  
+
 I wrote this project for an 8-week summer course on Rust programming. The project topic was entirely up to the student. This is an algorithm I had been wanting to explore.
 
 # Rustc Version:
@@ -31,7 +32,9 @@ My `BigUint` is represented in base `100`. This, in practice, is much, much less
 
 In short, the algorithm requires that many calculations and setups be made beforehand in order to compute the number-theoretic fast fourier transform. Many of the ways that I decided to compute these setup requirements are naive and quite slow. Without a quick setup, there is no way that this algorithm would be comprable to even naive `O(n^2)` multiplication.  
 
-So this project turned into more of a proof of concept, and a learning exercise in how to preform a number-theoretic fast fourier transform. The `BigUint` does implement the full algorithm correctly (albeit extremely inefficiently).  Below are the descriptions of 5 exercises that I designed to help build up to performing the necessary transforms in the context of multiplcation.
+So this project turned into more of a proof of concept, and a learning exercise in how to preform a number-theoretic fast fourier transform. The `BigUint` does implement the full algorithm correctly (albeit extremely inefficiently).
+
+Below are the descriptions of 5 exercises that I designed to help build up to performing the necessary transforms in the context of multiplcation. Some of them have duplicate code, or functions that have slight modifications. Rather than figure out a way to put these into a module of their own (which I would have done for a more cohesive project), I thought it made the most sense for each exercise to be able to stand alone entirely contained within the `main.rs` file. 
 
 # About: Exercise 01 Rings and Groups
 
