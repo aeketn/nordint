@@ -16,7 +16,7 @@ mod biguint_simple_constructors {
     fn empty() {
         let number = BigUint::empty();
         assert_eq!("BigUint { buckets: [] }", format!("{:?}", number));
-        assert_eq!(10, number.capacity());
+        assert_eq!(100, number.capacity());
     }
 
     #[test]
@@ -98,6 +98,90 @@ mod biguint_from_str {
     #[should_panic]
     fn alpha_panics() {
         let _ = BigUint::from_str("Hello, world!").expect("");
+    }
+}
+
+#[cfg(test)]
+mod biguint_from {
+    use nordint::BigUint;
+    use std::convert::From;
+    #[test]
+    fn from_u32() {
+        let number = BigUint::from(123456789_u32);
+        assert_eq!(
+            "BigUint { buckets: [89, 67, 45, 23, 1] }",
+            format!("{:?}", number)
+        ); 
+    }
+
+    #[test]
+    fn from_u64() {
+        let number = BigUint::from(123456789000_u64);
+        assert_eq!(
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
+            format!("{:?}", number)
+        ); 
+    }
+
+    #[test]
+    fn from_u128() {
+        let number = BigUint::from(123456789000_u128);
+        assert_eq!(
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
+            format!("{:?}", number)
+        ); 
+    }
+
+    #[test]
+    fn from_usize() {
+        let number = BigUint::from(123456789000_usize);
+        assert_eq!(
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
+            format!("{:?}", number)
+        ); 
+    }
+
+}
+
+#[cfg(test)]
+mod biguint_into {
+    use nordint::BigUint;
+    use std::convert::Into;
+
+    #[test]
+    fn u32_into() {
+        let number: BigUint = 123456789_u32.into();
+        assert_eq!(
+            "BigUint { buckets: [89, 67, 45, 23, 1] }",
+            format!("{:?}", number)
+        ); 
+    }
+
+    #[test]
+    fn u64_into() {
+        let number: BigUint = 123456789000_u64.into();
+        assert_eq!(
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
+            format!("{:?}", number)
+        ); 
+    }
+
+    #[test]
+    fn u128_into() {
+        let number: BigUint = 123456789000_u128.into();
+        assert_eq!(
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
+            format!("{:?}", number)
+        ); 
+    }
+
+    #[test]
+    fn usize_into() {
+        let number: BigUint = 123456789000_usize.into();
+        assert_eq!(
+            "BigUint { buckets: [0, 90, 78, 56, 34, 12] }",
+            format!("{:?}", number)
+        ); 
     }
 }
 
@@ -307,13 +391,13 @@ mod biguint_add_assign {
 }
 
 #[cfg(test)]
-mod biguint_mul_assign_i64 {
+mod biguint_mul_assign_u32 {
     use nordint::BigUint;
 
     #[test]
     fn undefined_for_empty_lhs() {
         let mut actual = BigUint::empty();
-        let rhs: i64 = 999999999;
+        let rhs = 999999999;
         let expected = BigUint::empty();
         actual *= rhs;
         assert_eq!(actual, expected);
@@ -322,7 +406,7 @@ mod biguint_mul_assign_i64 {
     #[test]
     fn rhs_is_zero() {
         let mut actual = BigUint::new("123456789987654321");
-        let rhs: i64 = 0;
+        let rhs = 0;
         let expected = BigUint::zero();
         actual *= rhs;
         assert_eq!(actual, expected);
@@ -331,7 +415,7 @@ mod biguint_mul_assign_i64 {
     #[test]
     fn rhs_is_one() {
         let mut actual = BigUint::new("123456789987654321");
-        let rhs: i64 = 1;
+        let rhs = 1;
         let expected = actual.clone();
         actual *= rhs;
         assert_eq!(actual, expected);
@@ -340,7 +424,7 @@ mod biguint_mul_assign_i64 {
     #[test]
     fn rhs_is_max_bucket_lhs_is_not() {
         let mut actual = BigUint::new("123456789987654321");
-        let rhs: i64 = 999999999;
+        let rhs = 999999999;
         let expected = BigUint::new("123456789864197531012345679");
         actual *= rhs;
         assert_eq!(actual, expected);
@@ -371,10 +455,10 @@ mod biguint_mul_assign_biguint {
 
     #[test]
     fn schonhage_strassen_large() {
-        let lhs = BigUint::new("123456789987654321123456789987654321123456789987654321123456789987654321");
-        let rhs = BigUint::new("192837465564738291192837465564738291123456789987654321123456789987654321");
+        let lhs = BigUint::new("123,456,789,987,654,321,123,456,789,987,654,321,123,456,789,987,654,321,123,456,789,987,654,321");
+        let rhs = BigUint::new("192,837,465,564,738,291,192,837,465,564,738,291,123,456,789,987,654,321,123,456,789,987,654,321");
         let actual = &lhs * &rhs;
-        let expected = BigUint::new("23807094487977417195524266316260245358675922650621440574649097434648265751573598736641889579856426908359061416704770573997866200731595789971041");
+        let expected = BigUint::new("23,807,094,487,977,417,195,524,266,316,260,245,358,675,922,650,621,440,574,649,097,434,648,265,751,573,598,736,641,889,579,856,426,908,359,061,416,704,770,573,997,866,200,731,595,789,971,041");
         assert_eq!(actual, expected);
     }
 }

@@ -221,6 +221,7 @@ fn ntt(elements: &[u64], n: u64, modulus: u64, omega: u64) -> NttError<Vec<u64>>
     )
 }
 
+/// Convolves two slices of u64 by transforming them in the NTT and then multiplying them point-wise
 fn ntt_convolution(lhs: &[u64], rhs: &[u64], modulus: u64, omega: u64) -> NttError<Vec<u64>> { 
     let n = (lhs.len() + rhs.len()) as u64;
     let l_transformed = ntt(lhs, n, modulus, omega)?;
@@ -304,12 +305,12 @@ fn main() -> NttError<()> {
     //
     // Example using [45, 88, 102, 71, 24, 0]:
     // 
-    //       45
-    //      88
-    //    102
-    //    71
-    //   24
-    //   0
+    //       45    ==         45
+    //      88     ==        880
+    //    102      ==      10200
+    //    71       ==      71000
+    //   24        ==     240000
+    //   0         ==    0000000 +
     //
     // Now Add the numbers:
     //_________________________________________________________________________________
