@@ -1,6 +1,0 @@
-[package]
-name = "nordint"
-version = "0.1.0"
-authors = ["Erik <aeketn@gmail.com>"]
-
-[dependencies]
