@@ -236,10 +236,6 @@ fn fft(elements: &mut Vec<i64>) -> NttError<(i64, i64)> {
     let n = (elements.len() as f64).log2().ceil().exp2() as i64;
     let modulus = find_modulus(n, &elements)?;
     let omega = find_omega(n, modulus)?;
-    println!("
-    omega = {}
-    modulus = {}",
-    omega, modulus);
     let difference = n - elements.len() as i64;
 
     for _ in 0..difference {

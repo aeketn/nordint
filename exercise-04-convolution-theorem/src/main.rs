@@ -126,30 +126,7 @@ fn dft_matrix(n: u64) -> Vec<Vec<u64>> {
 
 /// Finds a modulus M such that:
 ///   M is a prime number.
-///   M is larger than the number of elements
-///   M is is larger than the value of any element
-fn find_modulus(elements: &[u64]) -> NttError<u64> {
-    let n = elements.len() as u64;
-    if 0 == n { 
-        return Err("[NttError]: Attempt to transform nothing".to_string());
-    }
-
-    let max_elem = *elements
-        .iter()
-        .max()
-        .expect("[NttError]: Could not define a maximum element.");
-    let largest = max(n, max_elem);
-    let start = (largest - 1) / n;
-
-    for k in start.. {
-        let modulus = k * n + 1;
-        if modulus > largest && is_prime(modulus) {
-            return Ok(modulus);
-        }
-    }
-    Err("[NttError]: Could not find working modulus for the provided vector.".to_string())
-}
-
+///   M is larger than the square of the max element + the combined length + 1
 fn find_convolution_modulus(lhs: &[u64], rhs: &[u64]) -> NttError<u64> {
     let conv_len = (lhs.len() + rhs.len()) as u64;
     let max_elem = 
